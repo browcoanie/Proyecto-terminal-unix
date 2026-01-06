@@ -1,5 +1,5 @@
-#ifndef GUARDADOS_H
-#define GUARDADOS_H
+#ifndef GUARDAR_H
+#define GUARDAR_H
 
 #include <iostream>
 #include <fstream>
@@ -23,9 +23,9 @@ inline void guardarSistema(Nodo* raiz, string nombreArchivo) {
     if (archivo.is_open()) {
         guardarNodoRecursivo(raiz, 0, archivo);
         archivo.close();
-        cout << "[OK] Sistema guardado correctamente." << endl;
+        cout << "\033[1;32m[OK]\033[0m Sistema guardado correctamente." << endl;
     } else {
-        cout << "[ERROR] No se pudo guardar el sistema." << endl;
+        cout << "\033[1;31m[ERROR]\033[0m No se pudo guardar el sistema." << endl;
     }
 }
 
@@ -61,7 +61,7 @@ inline void guardarNodoRecursivo(Nodo *nodo, int nivel, ofstream &archivo){
 inline Nodo *cargarSistema(string nombreArchivo){
     ifstream archivo(nombreArchivo);
     if(!archivo.is_open()){
-        cout << "[SISTEMA] Archivo no encontrado. Iniciando sistema nuevo..." << endl;
+        cout << "\033[1;33m[SISTEMA]\033[0m Archivo no encontrado. Iniciando sistema nuevo..." << endl;
         return crearNodo("/", CARPETA, nullptr); 
     }
 
@@ -95,7 +95,7 @@ inline Nodo *cargarSistema(string nombreArchivo){
         }
     }
     archivo.close();
-    cout << "[OK] Sistema cargado correctamente." << endl;
+    cout << "\033[1;32m[OK]\033[0m Sistema cargado correctamente." << endl;
     return raiz;
 }
 

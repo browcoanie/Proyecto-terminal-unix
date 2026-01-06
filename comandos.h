@@ -29,9 +29,9 @@ inline void ejecutarLs(Nodo* actual) {
     NodoLista* aux = actual->hijos->cabeza;
     while (aux != nullptr) {
         if(aux->datos->tipo == CARPETA){
-            cout << "[DIR]  " << aux->datos->nombre << endl;
+            cout << "\033[1;34m[DIR]\033[0m  " << aux->datos->nombre << endl;
         }else{
-            cout << "[FILE] " << aux->datos->nombre;
+            cout << "\033[1;32m[FILE]\033[0m " << aux->datos->nombre;
             if (!aux->datos->contenido.empty()) {
                 cout << " (" << aux->datos->contenido.length() << " bytes)";
             }
@@ -45,28 +45,28 @@ inline void ejecutarMkdir(Nodo* actual, string nombreCarpeta) {
     NodoLista *aux = actual->hijos->cabeza;
     while(aux != nullptr){
         if (aux->datos->nombre == nombreCarpeta){
-            cout << "[ERROR] El directorio '" << nombreCarpeta << "' ya existe." << endl;
+            cout << "\033[1;31m[ERROR]\033[0m El directorio '" << nombreCarpeta << "' ya existe." << endl;
             return;
         }
         aux = aux->siguiente;      
     }
     Nodo *nuevaCarpeta = crearNodo(nombreCarpeta, CARPETA, actual);
     insertarEnLista(actual->hijos, nuevaCarpeta);
-    cout << "[OK] Directorio '" << nombreCarpeta << "' creado." << endl;
+    cout << "\033[1;32m[OK]\033[0m Directorio '" << nombreCarpeta << "' creado." << endl;
 }
 
 inline void ejecutarTouch(Nodo* actual, string nombreArchivo) {
     NodoLista* aux = actual->hijos->cabeza;
     while(aux != nullptr) {
         if(aux->datos->nombre == nombreArchivo) {
-            cout << "[ERROR] El archivo '" << nombreArchivo << "' ya existe." << endl;
+            cout << "\033[1;31m[ERROR]\033[0m El archivo '" << nombreArchivo << "' ya existe." << endl;
             return;
         }
         aux = aux->siguiente;
     }
     Nodo* nuevoArchivo = crearNodo(nombreArchivo, ARCHIVO, actual);
     insertarEnLista(actual->hijos, nuevoArchivo);
-    cout << "[OK] Archivo '" << nombreArchivo << "' creado." << endl;
+    cout << "\033[1;32m[OK]\033[0m Archivo '" << nombreArchivo << "' creado." << endl;
 }
 
 inline void ejecutarCd(Nodo *&actual, string destino) {
@@ -74,7 +74,7 @@ inline void ejecutarCd(Nodo *&actual, string destino) {
         if (actual->padre != nullptr) {
             actual = actual->padre;
         } else{
-            cout << "[INFO] Ya estas en la raiz." << endl;
+            cout << "\033[1;33m[INFO]\033[0m Ya estas en la raiz." << endl;
         }
         return;
     }
@@ -88,7 +88,7 @@ inline void ejecutarCd(Nodo *&actual, string destino) {
                 actual = aux->datos;
                 encontrado = true;
             } else {
-                cout << "[ERROR] '" << destino << "' no es un directorio." << endl;
+                cout << "\033[1;31m[ERROR]\033[0m '" << destino << "' no es un directorio." << endl;
                 return;
             }
             break;
@@ -97,7 +97,7 @@ inline void ejecutarCd(Nodo *&actual, string destino) {
     }
 
     if (!encontrado) {
-        cout << "[ERROR] Directorio '" << destino << "' no encontrado." << endl;
+        cout << "\033[1;31m[ERROR]\033[0m Directorio '" << destino << "' no encontrado." << endl;
     }
 }
 
@@ -115,32 +115,32 @@ inline void mostrarPrompt(Nodo* actual) {
     }
     if (ruta.length() > 1 && ruta[0] != '/') ruta = "/" + ruta;
     
-    cout << ruta << " $ ";
+    cout << "\033[1;36m" << ruta << "\033[0m \033[1;32m$\033[0m ";
 }
 
 inline void ejecutarMv(Nodo* actual, string origen, string destino) {
     Nodo* nodoMover = buscarEnLista(actual->hijos, origen);
     if (nodoMover == nullptr) {
-        cout << "[ERROR] No existe '" << origen << "'." << endl;
+        cout << "\033[1;31m[ERROR]\033[0m No existe '" << origen << "'." << endl;
         return;
     }
 
     if (destino == "..") {
         if (actual->padre == nullptr) {
-            cout << "[ERROR] No se puede mover a la raiz desde aqui." << endl;
+            cout << "\033[1;31m[ERROR]\033[0m No se puede mover a la raiz desde aqui." << endl;
             return;
         }
         
         Nodo* nodoRescatado = desconectarNodo(actual->hijos, origen);
         if (nodoRescatado == nullptr) {
-            cout << "[ERROR] No se pudo desconectar el nodo." << endl;
+            cout << "\033[1;31m[ERROR]\033[0m No se pudo desconectar el nodo." << endl;
             return;
         }
         
         nodoRescatado->padre = actual->padre;
         insertarEnLista(actual->padre->hijos, nodoRescatado);
         
-        cout << "[OK] Movido a directorio superior." << endl;
+        cout << "\033[1;32m[OK]\033[0m Movido a directorio superior." << endl;
         return;
     }
 
@@ -148,22 +148,22 @@ inline void ejecutarMv(Nodo* actual, string origen, string destino) {
 
     if (nodoDestino == nullptr) {
         nodoMover->nombre = destino;
-        cout << "[OK] Renombrado a: '" << destino << "'." << endl;
+        cout << "\033[1;32m[OK]\033[0m Renombrado a: '" << destino << "'." << endl;
     } 
     else if (nodoDestino->tipo == CARPETA) {
         Nodo* nodoRescatado = desconectarNodo(actual->hijos, origen);
         if (nodoRescatado == nullptr) {
-            cout << "[ERROR] No se pudo desconectar el nodo." << endl;
+            cout << "\033[1;31m[ERROR]\033[0m No se pudo desconectar el nodo." << endl;
             return;
         }
         
         nodoRescatado->padre = nodoDestino;
         insertarEnLista(nodoDestino->hijos, nodoRescatado);
         
-        cout << "[OK] Movido a: '" << destino << "'." << endl;
+        cout << "\033[1;32m[OK]\033[0m Movido a: '" << destino << "'." << endl;
     } 
     else {
-        cout << "[ERROR] El destino ya existe y no es un directorio." << endl;
+        cout << "\033[1;31m[ERROR]\033[0m El destino ya existe y no es un directorio." << endl;
     }
 }
 
@@ -171,27 +171,27 @@ inline void ejecutarEdit(Nodo* actual, string nombreArchivo) {
     Nodo* nodoArchivo = buscarEnLista(actual->hijos, nombreArchivo);
     
     if (nodoArchivo == nullptr) {
-        cout << "[ERROR] Archivo no encontrado." << endl;
+        cout << "\033[1;31m[ERROR]\033[0m Archivo no encontrado." << endl;
         return;
     }
     if (nodoArchivo->tipo == CARPETA) {
-        cout << "[ERROR] No se puede editar un directorio." << endl;
+        cout << "\033[1;31m[ERROR]\033[0m No se puede editar un directorio." << endl;
         return;
     }
 
     cout << endl;
-    cout << "--- EDITOR: " << nombreArchivo << " ---" << endl;
+    cout << "\033[1;35m--- EDITOR: \033[1;33m" << nombreArchivo << "\033[1;35m ---\033[0m" << endl;
     cout << endl;
     
     if (!nodoArchivo->contenido.empty()) {
         cout << nodoArchivo->contenido;
     } else {
-        cout << "(archivo vacio)" << endl;
+        cout << "\033[2m(archivo vacio)\033[0m" << endl;
     }
     
     cout << endl;
-    cout << "Comandos: :wq (guardar) | :clear (borrar todo)" << endl;
-    cout << string(50, '-') << endl;
+    cout << "\033[1;33mComandos:\033[0m :wq (guardar) | :clear (borrar todo)" << endl;
+    cout << "\033[1;35m" << string(50, '-') << "\033[0m" << endl;
 
     string linea;
     string contenidoNuevo = "";
@@ -206,7 +206,7 @@ inline void ejecutarEdit(Nodo* actual, string nombreArchivo) {
         else if (linea == ":clear") {
             contenidoNuevo = "";
             modoLimpio = true;
-            cout << "[INFO] Contenido borrado. Escribiendo desde cero..." << endl;
+            cout << "\033[1;33m[INFO]\033[0m Contenido borrado. Escribiendo desde cero..." << endl;
         }
         else {
             contenidoNuevo += linea + "\n";
@@ -219,7 +219,7 @@ inline void ejecutarEdit(Nodo* actual, string nombreArchivo) {
         nodoArchivo->contenido = contenidoNuevo;
     }
     
-    cout << "[OK] Guardado (" << nodoArchivo->contenido.length() << " bytes)" << endl;
+    cout << "\033[1;32m[OK]\033[0m Guardado (" << nodoArchivo->contenido.length() << " bytes)" << endl;
     cout << endl;
 }
 
@@ -227,16 +227,16 @@ inline void ejecutarCat(Nodo* actual, string nombreArchivo) {
     Nodo* nodoArchivo = buscarEnLista(actual->hijos, nombreArchivo);
     
     if (nodoArchivo == nullptr) {
-        cout << "[ERROR] Archivo no encontrado." << endl;
+        cout << "\033[1;31m[ERROR]\033[0m Archivo no encontrado." << endl;
         return;
     }
     if (nodoArchivo->tipo == CARPETA) {
-        cout << "[ERROR] No se puede mostrar el contenido de un directorio." << endl;
+        cout << "\033[1;31m[ERROR]\033[0m No se puede mostrar el contenido de un directorio." << endl;
         return;
     }
 
     if (nodoArchivo->contenido.empty()) {
-        cout << "(archivo vacio)" << endl;
+        cout << "\033[2m(archivo vacio)\033[0m" << endl;
     } else {
         cout << nodoArchivo->contenido;
     }
@@ -246,18 +246,18 @@ inline void ejecutarRm(Nodo* actual, string nombre) {
     Nodo* nodoEliminar = buscarEnLista(actual->hijos, nombre);
     
     if (nodoEliminar == nullptr) {
-        cout << "[ERROR] '" << nombre << "' no existe." << endl;
+        cout << "\033[1;31m[ERROR]\033[0m '" << nombre << "' no existe." << endl;
         return;
     }
     
     if (nodoEliminar->tipo == CARPETA && nodoEliminar->hijos->cabeza != nullptr) {
-        cout << "[ERROR] No se puede eliminar un directorio no vacio." << endl;
-        cout << "[INFO] Elimina primero su contenido." << endl;
+        cout << "\033[1;31m[ERROR]\033[0m No se puede eliminar un directorio no vacio." << endl;
+        cout << "\033[1;33m[INFO]\033[0m Elimina primero su contenido." << endl;
         return;
     }
     
     desconectarNodo(actual->hijos, nombre);
-    cout << "[OK] '" << nombre << "' eliminado." << endl;
+    cout << "\033[1;32m[OK]\033[0m '" << nombre << "' eliminado." << endl;
 }
 
 #endif
