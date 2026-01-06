@@ -6,19 +6,20 @@
 
 using namespace std;
 
-//DEFINICIÓN DE ESTRUCTURAS (DATOS)
-
+// ==========================================
+// 1. DEFINICIÓN DE ESTRUCTURAS (DATOS)
+// ==========================================
 
 enum TipoNodo {
     ARCHIVO,
     CARPETA
 };
 
-// Avisamos que existen estas estructuras para poder usarlas en los punteros
+// Avisamos que existen estas estructuras
 struct Nodo;
 struct ListaEnlazada;
 
-// Lo principal: puede ser archivo o carpeta
+// El Nodo principal
 struct Nodo {
     string nombre;
     TipoNodo tipo;
@@ -27,40 +28,36 @@ struct Nodo {
     ListaEnlazada* hijos;   // Lista de lo que tiene adentro (si es carpeta)
 };
 
-// El nodo interno de la lista (el que conecta con los hijos del arbol)
+// El nodo interno de la lista
 struct NodoLista {
     Nodo* datos;            // El archivo/carpeta real
     NodoLista* siguiente;   // El siguiente hermano
 };
 
-// La lista en sí misma (solo guarda el inicio)
+// La lista en sí misma
 struct ListaEnlazada {
     NodoLista* cabeza;
 };
 
+// ==========================================
+// 2. PROTOTIPOS DE FUNCIONES
+// ==========================================
 
-// PROTOTIPOS DE FUNCIONES (MENÚ)
-
-
-// Inicialización
 void inicializarLista(ListaEnlazada* lista);
 Nodo* crearNodo(string nombre, TipoNodo tipo, Nodo* padre);
-
-// Operaciones básicas de la estructura
 void insertarEnLista(ListaEnlazada* lista, Nodo* nuevoHijo);
-
-// Auxiliar para ver si funciona (luego borraremos esto)
 void imprimirEstructura(Nodo* nodoActual, int nivel); 
+Nodo* buscarEnLista(ListaEnlazada* lista, string nombreBuscado);
+Nodo* desconectarNodo(ListaEnlazada* lista, string nombreNodo);
 
-
-// IMPLEMENTACIÓN (LÓGICA)
-
+// ==========================================
+// 3. IMPLEMENTACIÓN (LÓGICA)
+// ==========================================
 
 inline void inicializarLista(ListaEnlazada* lista) {
     lista->cabeza = nullptr;
 }
 
-// Función constructora manual
 inline Nodo* crearNodo(string nombre, TipoNodo tipo, Nodo* padre) {
     Nodo* nuevo = new Nodo;
     nuevo->nombre = nombre;
@@ -68,7 +65,6 @@ inline Nodo* crearNodo(string nombre, TipoNodo tipo, Nodo* padre) {
     nuevo->padre = padre;
     nuevo->contenido = "";
 
-    // Si es carpeta, le creamos su lista de hijos vacía
     if (tipo == CARPETA) {
         nuevo->hijos = new ListaEnlazada;
         inicializarLista(nuevo->hijos);
@@ -78,7 +74,6 @@ inline Nodo* crearNodo(string nombre, TipoNodo tipo, Nodo* padre) {
     return nuevo;
 }
 
-// Agrega un nodo al final de la lista de hijos
 inline void insertarEnLista(ListaEnlazada* lista, Nodo* nuevoHijo) {
     NodoLista* nuevoVagon = new NodoLista;
     nuevoVagon->datos = nuevoHijo;
@@ -95,14 +90,11 @@ inline void insertarEnLista(ListaEnlazada* lista, Nodo* nuevoHijo) {
     }
 }
 
-// Función recursiva simple para verificar visualmente que el árbol funciona
 inline void imprimirEstructura(Nodo* nodoActual, int nivel) {
-    // Indentación según el nivel
     for(int i = 0; i < nivel; i++) cout << "  ";
     
     if (nodoActual->tipo == CARPETA) {
         cout << "[D] " << nodoActual->nombre << endl;
-        // Recorrer hijos
         if (nodoActual->hijos != nullptr) {
             NodoLista* aux = nodoActual->hijos->cabeza;
             while (aux != nullptr) {
@@ -111,8 +103,66 @@ inline void imprimirEstructura(Nodo* nodoActual, int nivel) {
             }
         }
     } else {
-        cout << "- " << nodoActual->nombre << endl;
+        cout << "- " << nodoActual->nombre;
+        if (!nodoActual->contenido.empty()) {
+            cout << " (" << nodoActual->contenido.length() << " bytes)";
+        }
+        cout << endl;
     }
+}
+
+inline Nodo* buscarEnLista(ListaEnlazada* lista, string nombreBuscado) {
+    if (lista == nullptr || lista->cabeza == nullptr) return nullptr;
+
+    NodoLista* aux = lista->cabeza;
+    while (aux != nullptr) {
+        if (aux->datos->nombre == nombreBuscado) {
+            return aux->datos;
+        }
+        aux = aux->siguiente;
+    }
+    return nullptr;
+}
+
+inline Nodo* desconectarNodo(ListaEnlazada* lista, string nombreNodo) {
+    if (lista == nullptr || lista->cabeza == nullptr) {
+        cout << "[DEBUG] Lista vacía o nula" << endl;
+        return nullptr;
+    }
+
+    NodoLista* actual = lista->cabeza;
+    NodoLista* anterior = nullptr;
+
+    while (actual != nullptr) {
+        if (actual->datos->nombre == nombreNodo) {
+            // Guardar el puntero al Nodo ANTES de eliminar el NodoLista
+            Nodo* nodoRescatado = actual->datos;
+            
+            
+            
+            // Desconectar de la lista
+            if (anterior == nullptr) {
+                // Es el primero de la lista
+                lista->cabeza = actual->siguiente;
+            } else {
+                // Está en medio o al final
+                anterior->siguiente = actual->siguiente;
+            }
+            
+            // Liberar SOLO el NodoLista (el contenedor), NO el Nodo (los datos)
+            delete actual;
+            
+          
+            
+            // Retornar el Nodo intacto con todo su contenido
+            return nodoRescatado;
+        }
+        anterior = actual;
+        actual = actual->siguiente;
+    }
+    
+    cout << "[DEBUG] No se encontró el nodo '" << nombreNodo << "'" << endl;
+    return nullptr;
 }
 
 #endif

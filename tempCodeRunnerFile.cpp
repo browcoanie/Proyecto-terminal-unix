@@ -1,0 +1,1 @@
+string archivoBD = "sistema_archivos.txt";
